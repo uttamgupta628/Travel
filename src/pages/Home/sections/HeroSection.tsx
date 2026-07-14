@@ -177,21 +177,21 @@ const HeroSection: React.FC = () => {
           className="hero-fade-up flex items-start justify-center gap-2 sm:gap-3"
           style={{ animationDelay: "0.2s" }}
         >
-          <div className="hero-float h-72 w-36 shrink-0 overflow-hidden rounded-[2rem] border-4 border-blue-400 shadow-xl transition-transform duration-300 hover:z-10 hover:scale-105 sm:h-96 sm:w-48">
+          <div className="hero-float h-72 w-36 shrink-0 overflow-hidden rounded-[2rem] border-4 border-blue-400 shadow-xl transition-transform duration-300 hover:z-10 hover:scale-105 sm:h-108 sm:w-56">
             <img
               src={heroImageOne}
               alt="Explorer overlooking clouds"
               className="h-full w-full object-cover"
             />
           </div>
-          <div className="hero-float-slow mt-6 h-72 w-36 shrink-0 overflow-hidden rounded-[2rem] border-4 border-blue-400 shadow-xl transition-transform duration-300 hover:z-10 hover:scale-105 sm:mt-10 sm:h-96 sm:w-48">
+          <div className="hero-float-slow mt-6 h-72 w-36 shrink-0 overflow-hidden rounded-[2rem] border-4 border-blue-400 shadow-xl transition-transform duration-300 hover:z-10 hover:scale-105 sm:mt-10 sm:h-108 sm:w-56">
             <img
               src={heroImageTwo}
               alt="Snow-capped mountains"
               className="h-full w-full object-cover"
             />
           </div>
-          <div className="hero-float-slower mt-14 h-72 w-36 shrink-0 overflow-hidden rounded-[2rem] border-4 border-blue-400 shadow-xl transition-transform duration-300 hover:z-10 hover:scale-105 sm:mt-20 sm:h-96 sm:w-48">
+          <div className="hero-float-slower mt-14 h-72 w-36 shrink-0 overflow-hidden rounded-[2rem] border-4 border-blue-400 shadow-xl transition-transform duration-300 hover:z-10 hover:scale-105 sm:mt-20 sm:h-108 sm:w-56">
             <img
               src={heroImageThree}
               alt="Historic landmark"

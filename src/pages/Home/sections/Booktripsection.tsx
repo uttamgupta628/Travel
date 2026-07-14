@@ -1,9 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 
-// Replace these with your actual asset paths — any filenames work.
-import tripGreeceImage from "../../../assets/trip-greece.png";
-import tripRomeAvatar from "../../../assets/trip-rome-avatar.png";
-import authorAvatar from "../../../assets/trip-rome-avatar.png";
+/**
+ * Images are served through Cloudinary's transformation pipeline
+ * (auto format/quality + smart cropping) instead of local imports.
+ *
+ * I used Cloudinary's public "demo" cloud sample assets below as stand-ins
+ * since I can't upload real licensed trip/traveler photos on your behalf.
+ * Swap the `cld("...")` public IDs for your own Cloudinary cloud name +
+ * uploaded assets once you have them — the transformations, layout and
+ * animation all keep working as-is.
+ */
+const cld = (publicId: string, transform: string) =>
+  `https://res.cloudinary.com/demo/image/upload/${transform}/${publicId}`;
+
+const tripGreeceImage = cld(
+  "samples/landscapes/beach-boat",
+  "f_auto,q_auto,w_800,h_600,c_fill,g_auto"
+);
+const tripRomeAvatar = cld(
+  "samples/people/bicycle",
+  "f_auto,q_auto,w_200,h_200,c_thumb,g_face"
+);
+const authorAvatar = cld(
+  "samples/people/kitchen-bar",
+  "f_auto,q_auto,w_200,h_200,c_thumb,g_face"
+);
 
 interface Step {
   title: string;
@@ -70,6 +91,12 @@ const HeartIcon: React.FC = () => (
   </svg>
 );
 
+const StarIcon: React.FC = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+    <path d="M12 2.5l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7-5.4-4.7 7.1-.6z" />
+  </svg>
+);
+
 const STEPS: Step[] = [
   {
     title: "Choose Destination",
@@ -91,10 +118,13 @@ const STEPS: Step[] = [
   },
 ];
 
+const PROGRESS_TARGET = 40;
+
 const BookTripSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [displayProgress, setDisplayProgress] = useState(0);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -114,9 +144,25 @@ const BookTripSection: React.FC = () => {
 
   useEffect(() => {
     if (!isVisible) return;
-    const timer = setTimeout(() => setProgress(40), 700);
+    const timer = setTimeout(() => setProgress(PROGRESS_TARGET), 700);
     return () => clearTimeout(timer);
   }, [isVisible]);
+
+  // Count the percentage number up in sync with the bar filling, instead of
+  // just snapping to the final value.
+  useEffect(() => {
+    if (progress === 0) return;
+    const start = performance.now();
+    const duration = 1200;
+    let frame: number;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      setDisplayProgress(Math.round(t * progress));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [progress]);
 
   return (
     <section ref={sectionRef} className="relative overflow-hidden bg-white px-4 py-20 sm:px-6 lg:px-8">
@@ -133,6 +179,31 @@ const BookTripSection: React.FC = () => {
           from { opacity: 0; transform: translate(16px, 16px) scale(0.9); }
           to { opacity: 1; transform: translate(0, 0) scale(1); }
         }
+        @keyframes floatSlow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes growLine {
+          from { transform: scaleY(0); }
+          to { transform: scaleY(1); }
+        }
+        @keyframes ringPulse {
+          0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.35); }
+          100% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+        }
+        @keyframes shimmerSweep {
+          0% { transform: translateX(-130%) skewX(-12deg); }
+          100% { transform: translateX(160%) skewX(-12deg); }
+        }
+        @keyframes shimmerBar {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(300%); }
+        }
+        @keyframes kenBurns {
+          0% { transform: scale(1.05); }
+          100% { transform: scale(1.16); }
+        }
+
         .book-fade-up {
           opacity: 0;
           animation: bookFadeUp 0.7s ease-out forwards;
@@ -143,14 +214,57 @@ const BookTripSection: React.FC = () => {
         }
         .book-badge-in {
           opacity: 0;
-          animation: badgeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: badgeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards, floatSlow 5s ease-in-out 1.2s infinite;
         }
+        .book-blob { animation: floatSlow 8s ease-in-out infinite; }
+
+        .book-step-line {
+          transform-origin: top;
+          animation: growLine 0.6s ease-out forwards;
+        }
+        .book-step-icon:hover {
+          animation: ringPulse 1s ease-out infinite;
+        }
+
+        .book-card-img { animation: kenBurns 8s ease-in-out infinite alternate; }
+        .book-card:hover .book-shine { animation: shimmerSweep 1s ease forwards; }
+        .book-shine {
+          position: absolute;
+          inset: -20% -60%;
+          background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.5) 50%, transparent 65%);
+          pointer-events: none;
+        }
+        .book-progress-fill { position: relative; overflow: hidden; }
+        .book-progress-fill::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          width: 40%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+          animation: shimmerBar 1.6s ease-in-out infinite;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .book-fade-up, .book-fade-in, .book-badge-in { opacity: 1; animation: none; }
+          .book-blob, .book-card-img, .book-progress-fill::after { animation: none; }
+          .book-step-line { animation: none; transform: scaleY(1); }
+          .book-step-icon:hover { animation: none; }
+          .book-card:hover .book-shine { animation: none; }
         }
       `}</style>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2 lg:gap-12">
+      {/* Ambient background accents, matching the Destinations section */}
+      <div
+        aria-hidden
+        className="book-blob pointer-events-none absolute -left-20 top-10 h-64 w-64 rounded-full bg-amber-200/25 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="book-blob pointer-events-none absolute -right-20 bottom-0 h-72 w-72 rounded-full bg-blue-200/25 blur-3xl"
+        style={{ animationDelay: "2s" }}
+      />
+
+      <div className="relative mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2 lg:gap-12">
         {/* Left — copy + steps */}
         <div>
           {isVisible && (
@@ -170,15 +284,21 @@ const BookTripSection: React.FC = () => {
                 In 3 Easy Steps
               </h2>
 
-              <div className="mt-10 space-y-8">
+              <div className="relative mt-10 space-y-8">
+                {/* Animated route line connecting the steps */}
+                <div
+                  className="book-step-line absolute left-[22px] top-3 hidden w-px bg-gradient-to-b from-amber-400 via-orange-500 to-teal-800 sm:block"
+                  style={{ height: "calc(100% - 24px)", animationDelay: "0.5s" }}
+                />
+
                 {STEPS.map((step, i) => (
                   <div
                     key={step.title}
-                    className="book-fade-up group flex items-start gap-4"
+                    className="book-fade-up group relative flex items-start gap-4"
                     style={{ animationDelay: `${0.18 + i * 0.12}s` }}
                   >
                     <div
-                      className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${step.bg} shadow-md transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105`}
+                      className={`book-step-icon relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${step.bg} shadow-md transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105`}
                     >
                       {step.icon}
                     </div>
@@ -200,20 +320,34 @@ const BookTripSection: React.FC = () => {
           {isVisible && (
             <>
               <div
-                className="book-fade-in relative rounded-3xl bg-white p-4 shadow-xl shadow-gray-200/70 ring-1 ring-gray-100"
+                className="book-card book-fade-in relative overflow-hidden rounded-3xl bg-white p-4 shadow-xl shadow-gray-200/70 ring-1 ring-gray-100 transition-transform duration-300 hover:-translate-y-1"
                 style={{ animationDelay: "0.15s" }}
               >
-                <div className="overflow-hidden rounded-2xl">
+                <div className="relative overflow-hidden rounded-2xl">
                   <img
                     src={tripGreeceImage}
                     alt="Trip to Greece"
-                    className="h-52 w-full object-cover transition-transform duration-700 hover:scale-105 sm:h-56"
+                    className="book-card-img h-52 w-full object-cover sm:h-56"
                   />
+                  <div className="book-shine" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+                  <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-gray-900 shadow-sm backdrop-blur-sm">
+                    <span className="text-amber-400">
+                      <StarIcon />
+                    </span>
+                    4.9
+                  </div>
                 </div>
 
                 <div className="px-1 pt-4">
                   <h3 className="text-lg font-bold text-gray-900">Trip To Greece</h3>
-                  <p className="mt-1 text-sm text-gray-400">
+                  <p className="mt-1 flex items-center gap-1.5 text-sm text-gray-400">
+                    <img
+                      src={authorAvatar}
+                      alt=""
+                      className="h-5 w-5 rounded-full object-cover ring-1 ring-white"
+                    />
                     14–29 June&nbsp;| &nbsp;by Robbin joseph
                   </p>
 
@@ -237,13 +371,13 @@ const BookTripSection: React.FC = () => {
 
               {/* Floating progress badge */}
               <div
-                className="book-badge-in absolute -bottom-8 -right-4 flex w-56 items-center gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-gray-300/60 ring-1 ring-gray-100 transition-transform duration-300 hover:-translate-y-1 sm:-right-8 sm:w-60"
+                className="book-badge-in absolute -bottom-8 -right-4 flex w-56 items-center gap-3 rounded-2xl bg-white p-3 shadow-xl shadow-gray-300/60 ring-1 ring-gray-100 transition-transform duration-300 hover:!translate-y-[-4px] sm:-right-8 sm:w-60"
                 style={{ animationDelay: "0.6s" }}
               >
                 <img
                   src={tripRomeAvatar}
                   alt="Trip to Rome"
-                  className="h-12 w-12 shrink-0 rounded-full object-cover"
+                  className="h-12 w-12 shrink-0 rounded-full object-cover ring-2 ring-white"
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
@@ -254,21 +388,18 @@ const BookTripSection: React.FC = () => {
                   </div>
                   <p className="truncate text-sm font-bold text-gray-900">Trip to rome</p>
                   <div className="mt-1.5 flex items-center gap-2">
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-blue-100">
+                    <div className="book-progress-fill h-1.5 flex-1 overflow-hidden rounded-full bg-blue-100">
                       <div
                         className="h-full rounded-full bg-blue-600 transition-all duration-[1200ms] ease-out"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                     <span className="shrink-0 text-xs font-semibold text-blue-600">
-                      {progress}%
+                      {displayProgress}%
                     </span>
                   </div>
                 </div>
               </div>
-
-              {/* Hidden author avatar reference — swap into the card meta row if desired */}
-              <img src={authorAvatar} alt="" className="hidden" />
             </>
           )}
         </div>
