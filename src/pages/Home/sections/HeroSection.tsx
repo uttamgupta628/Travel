@@ -473,16 +473,19 @@
 
 // export default HeroSection;
 
+
+
 import React, { useEffect, useRef, useState } from "react";
 
-// Background image served through Cloudinary's fetch delivery type, which
-// pulls in a remote photo and applies auto format/quality + smart cropping
-// on the fly. I used a Creative Commons desert-canyon photo (Red Rock
-// Canyon NCA, Nevada) as a stand-in for your reference scene — swap this
-// for your own Cloudinary cloud name + uploaded photo whenever you have
-// the real one; everything else (Ken Burns zoom, overlays) keeps working.
-const heroBackground =
-  "https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_1920,h_1080,c_fill,g_auto/pm/mountains_autumn.jpg";
+const heroBackgrounds = [
+  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784112517/ChatGPT_Image_Jul_15_2026_04_16_52_PM_kfdij8.png",
+  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784112530/ChatGPT_Image_Jul_15_2026_04_16_52_PM_q7br4y.png",
+  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784114558/WhatsApp_Image_2026-07-15_at_4.51.50_PM_yqswos.jpg",
+  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784114946/WhatsApp_Image_2026-07-15_at_4.58.19_PM_tfw6tp.jpg",
+  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784116823/WhatsApp_Image_2026-07-15_at_5.01.14_PM_xtdf1a.jpg",
+];
+
+const SLIDE_DURATION = 2000;
 
 /* ---------------------------------- Icons --------------------------------- */
 
@@ -533,11 +536,6 @@ const SearchIcon: React.FC = () => (
     <path d="m20 20-3.5-3.5" />
   </svg>
 );
-// const StarIcon: React.FC = () => (
-//   <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-//     <path d="M12 2.5l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7-5.4-4.7 7.1-.6z" />
-//   </svg>
-// );
 
 /* --------------------------------- Data --------------------------------- */
 
@@ -594,6 +592,50 @@ const StatItem: React.FC<{ stat: Stat; delay: number; start: boolean }> = ({ sta
       <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-white/60 sm:text-xs">
         {stat.label}
       </p>
+    </div>
+  );
+};
+
+/* ----------------------------- Background slideshow ----------------------------- */
+
+const HeroBackgroundSlideshow: React.FC = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    if (heroBackgrounds.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % heroBackgrounds.length);
+    }, SLIDE_DURATION);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-black">
+      {heroBackgrounds.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          className={`disc-bg-img absolute inset-0 h-full w-full object-cover transition-opacity duration-[1400ms] ease-in-out ${
+            i === activeIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+          }`}
+        />
+      ))}
+      <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+      <div className="absolute inset-0 z-20 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+      <div className="absolute inset-0 z-20 bg-[radial-gradient(ellipse_at_bottom_left,rgba(217,161,91,0.12),transparent_60%)]" />
+
+      {/* Slide indicator dots */}
+      <div className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 gap-1.5">
+        {heroBackgrounds.map((_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 rounded-full transition-all duration-500 ${
+              i === activeIndex ? "w-5 bg-amber-300" : "w-1.5 bg-white/40"
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 };
@@ -698,13 +740,8 @@ const DiscoverHeroSection: React.FC = () => {
         }
       `}</style>
 
-      {/* Background image with slow Ken Burns zoom + warm gradient overlay */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <img src={heroBackground} alt="" className="disc-bg-img h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(217,161,91,0.12),transparent_60%)]" />
-      </div>
+      {/* Auto-sliding background with crossfade + Ken Burns zoom */}
+      <HeroBackgroundSlideshow />
 
       <div className="relative z-10 w-full max-w-2xl">
         {isVisible && (

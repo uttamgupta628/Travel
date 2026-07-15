@@ -242,7 +242,7 @@ const Navbar: React.FC = () => {
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 via-fuchsia-500 to-pink-500 shadow-md shadow-fuchsia-500/30">
             <PlaneLogoIcon />
           </span>
-          <span className="text-lg font-bold text-white">Traveleo</span>
+          <span className="text-lg font-bold text-white">Travel Terns</span>
         </a>
 
         {/* Center links (desktop) */}
