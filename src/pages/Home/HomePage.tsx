@@ -1,26 +1,27 @@
-import HeroSection from "./sections/HeroSection";
-import BookingSearchSection from "./sections/Bookingsearchsection"
-import WhyTraveleoSection from "./sections/Whytraveleosection"
-import TopDestinationsSection from "./sections/Topdestinationssection"
-import TrendingPackagesSection from "./sections/Trendingpackagessection"
-import ExploreExperiencesSection from "./sections/Exploreexperiencessection"
-import PremiumSection from "./sections/Premiumsection"
-import TestimonialsSection from "./sections/Testimonialssectionnew"
-import DealsSection from "./sections/Dealssection"
-import MobileFaqNewsletterSection from "./sections/Mobilefaqnewslettersection"
-
+import  DiscoverHeroSection from "./sections/HeroSection";
+import DreamDestinationsSection from "./sections/Dreamdestinationssection"
+import HolidayPackagesSection from "./sections/Holidaypackagessection"
+import LuxuryHotelsSection from "./sections/Luxuryhotelssection"
+import CuratedExperiencesSection from "./sections/Curatedexperiencessection"
+import TravelInspirationSection from "./sections/Travelinspirationsection"
+import WhatTravellersSaySection from "./sections/Whattravellerssaysection"
+import TravelSmarterAppSection from "./sections/Travelsmarterappsection"
+import PlatinumMembershipSection from "./sections/Platinummembershipsection"
+import FAQSection from "./sections/Faqsection"
+import NewsletterSection from "./sections/Newslettersectionnew"
 const HomePage = () => (
   <>
-    <HeroSection />
-    <BookingSearchSection />
-    <WhyTraveleoSection />
-    <TopDestinationsSection />
-    <TrendingPackagesSection />
-    <ExploreExperiencesSection />
-    <PremiumSection />
-    <TestimonialsSection />
-    <DealsSection />
-    <MobileFaqNewsletterSection />
+    <DiscoverHeroSection />
+    <DreamDestinationsSection />
+    <HolidayPackagesSection />
+    <LuxuryHotelsSection />
+    <CuratedExperiencesSection />
+    <TravelInspirationSection />
+    <WhatTravellersSaySection />
+    <TravelSmarterAppSection />
+    <PlatinumMembershipSection />
+    <FAQSection />
+    <NewsletterSection />
   </>
 );
 
