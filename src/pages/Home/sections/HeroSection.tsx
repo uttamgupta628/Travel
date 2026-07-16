@@ -474,7 +474,6 @@
 // export default HeroSection;
 
 
-
 import React, { useEffect, useRef, useState } from "react";
 
 const heroBackgrounds = [
@@ -584,12 +583,12 @@ const useCountUp = (target: number, start: boolean, decimal: boolean, duration =
 const StatItem: React.FC<{ stat: Stat; delay: number; start: boolean }> = ({ stat, delay, start }) => {
   const count = useCountUp(stat.value, start, !!stat.decimal, 1400 + delay * 350);
   return (
-    <div className="disc-fade-up" style={{ animationDelay: `${1.05 + delay * 0.08}s` }}>
-      <p className="text-lg font-bold text-white sm:text-xl">
+     <div className="disc-fade-up text-center" style={{ animationDelay: `${1.05 + delay * 0.08}s` }}>
+      <p className="text-lg font-bold  sm:text-xl">
         {stat.decimal ? count.toFixed(1) : count}
         {stat.suffix}
       </p>
-      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-white/60 sm:text-xs">
+      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide  sm:text-xs">
         {stat.label}
       </p>
     </div>
@@ -610,7 +609,7 @@ const HeroBackgroundSlideshow: React.FC = () => {
   }, []);
 
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-black">
+    <div className="absolute inset-0 -z-10 overflow-hidden">
       {heroBackgrounds.map((src, i) => (
         <img
           key={src}
@@ -644,38 +643,14 @@ const HeroBackgroundSlideshow: React.FC = () => {
 
 const DiscoverHeroSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const tabsWrapRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [searching, setSearching] = useState(false);
-  const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
   useEffect(() => {
-    const node = sectionRef.current;
-    if (!node) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
+    setIsVisible(true);
   }, []);
-
-  useEffect(() => {
-    const btn = tabRefs.current[activeTab];
-    const wrap = tabsWrapRef.current;
-    if (!btn || !wrap) return;
-    const wrapRect = wrap.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    setIndicator({ left: btnRect.left - wrapRect.left, width: btnRect.width });
-  }, [activeTab, isVisible]);
 
   const handleSearch = () => {
     setSearching(true);
@@ -683,185 +658,192 @@ const DiscoverHeroSection: React.FC = () => {
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative isolate flex min-h-screen items-center overflow-hidden px-4 pb-16 pt-28 sm:px-8 lg:px-16"
-    >
-      <style>{`
-        @keyframes discFadeUp {
-          from { opacity: 0; transform: translateY(26px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes discCardIn {
-          from { opacity: 0; transform: translateY(28px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes discKenBurns {
-          0% { transform: scale(1.08) translate(0, 0); }
-          100% { transform: scale(1.18) translate(-1.5%, -1%); }
-        }
-        @keyframes discShimmer {
-          0% { background-position: -120% 0; }
-          100% { background-position: 220% 0; }
-        }
-        @keyframes discSpin { to { transform: rotate(360deg); } }
+    <>
+      {/* HERO SECTION — ends here; background image lives only in this block */}
+      <section
+        ref={sectionRef}
+        className="relative isolate flex min-h-[95vh] items-center px-4 pb-16 pt-28 sm:px-8 lg:px-16"
+      >
+        <style>{`
+          @keyframes discFadeUp {
+            from { opacity: 0; transform: translateY(26px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes discCardIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          @keyframes discKenBurns {
+            0% { transform: scale(1.08) translate(0, 0); }
+            100% { transform: scale(1.18) translate(-1.5%, -1%); }
+          }
+          @keyframes discShimmer {
+            0% { background-position: -120% 0; }
+            100% { background-position: 220% 0; }
+          }
+          @keyframes discSpin { to { transform: rotate(360deg); } }
 
-        .disc-fade-up { opacity: 0; animation: discFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .disc-card { opacity: 0; animation: discCardIn 0.85s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .disc-bg-img { animation: discKenBurns 20s ease-in-out infinite alternate; }
+          .disc-fade-up { opacity: 0; animation: discFadeUp 0.8s cubic-bezier(0.22,1,0.36,1) forwards; }
+          .disc-card { opacity: 0; animation: discCardIn 0.85s cubic-bezier(0.22,1,0.36,1) forwards; }
+          .disc-bg-img { animation: discKenBurns 20s ease-in-out infinite alternate; }
 
-        .disc-tab-indicator {
-          transition: left 0.35s cubic-bezier(0.22,1,0.36,1), width 0.35s cubic-bezier(0.22,1,0.36,1);
-        }
+          .disc-field { transition: background-color 0.25s ease; }
+          .disc-field:hover, .disc-field:focus-within {
+            background-color: rgba(0, 0, 0, 0.02);
+          }
 
-        .disc-field { transition: background-color 0.25s ease, box-shadow 0.25s ease; }
-        .disc-field:hover, .disc-field:focus-within {
-          background-color: rgba(217, 161, 91, 0.08);
-          box-shadow: inset 0 0 0 1px rgba(217, 161, 91, 0.35);
-        }
+          .disc-search-btn {
+            background-size: 220% 100%;
+            background-position: 0% 0%;
+            transition: background-position 0.5s ease, transform 0.2s ease;
+          }
+          .disc-search-btn:hover { background-position: 100% 0%; transform: translateY(-1px); }
 
-        .disc-search-btn {
-          background-size: 220% 100%;
-          background-position: 0% 0%;
-          transition: background-position 0.5s ease, transform 0.2s ease;
-        }
-        .disc-search-btn:hover { background-position: 100% 0%; transform: translateY(-1px); }
+          .disc-eyebrow-shimmer {
+            background-image: linear-gradient(100deg, rgba(217,161,91,0.15) 30%, rgba(217,161,91,0.4) 45%, rgba(217,161,91,0.15) 60%);
+            background-size: 250% 100%;
+            animation: discShimmer 3.5s ease-in-out infinite;
+          }
 
-        .disc-eyebrow-shimmer {
-          background-image: linear-gradient(100deg, rgba(217,161,91,0.15) 30%, rgba(217,161,91,0.4) 45%, rgba(217,161,91,0.15) 60%);
-          background-size: 250% 100%;
-          animation: discShimmer 3.5s ease-in-out infinite;
-        }
+          @media (prefers-reduced-motion: reduce) {
+            .disc-fade-up, .disc-card { opacity: 1; animation: none !important; }
+            .disc-bg-img { animation: none; }
+            .disc-eyebrow-shimmer { animation: none; }
+          }
+        `}</style>
 
-        @media (prefers-reduced-motion: reduce) {
-          .disc-fade-up, .disc-card { opacity: 1; animation: none !important; }
-          .disc-bg-img { animation: none; }
-          .disc-eyebrow-shimmer { animation: none; }
-        }
-      `}</style>
+        <HeroBackgroundSlideshow />
 
-      {/* Auto-sliding background with crossfade + Ken Burns zoom */}
-      <HeroBackgroundSlideshow />
-
-      <div className="relative z-10 w-full max-w-2xl">
-        {isVisible && (
-          <>
-            <p
-              className="disc-fade-up disc-eyebrow-shimmer inline-flex items-center gap-2 rounded-full border border-amber-200/30 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200"
-              style={{ animationDelay: "0s" }}
-            >
-              <PlaneIcon />
-              World-Class Travel Experiences
-            </p>
-
-            <h1
-              className="disc-fade-up mt-6 font-serif text-4xl font-bold leading-[1.15] text-white sm:text-5xl lg:text-6xl"
-              style={{ animationDelay: "0.12s" }}
-            >
-              Discover the World in{" "}
-              <span className="italic text-amber-300">Extraordinary</span> Ways
-            </h1>
-
-            <p
-              className="disc-fade-up mt-5 max-w-md text-sm text-white/70 sm:text-base"
-              style={{ animationDelay: "0.24s" }}
-            >
-              Curated journeys to 190+ countries. Expert-crafted itineraries, luxury
-              stays, and unforgettable experiences.
-            </p>
-
-            {/* Search card */}
-            <div
-              className="disc-card mt-8 w-full max-w-xl rounded-2xl bg-white/95 p-3 shadow-2xl shadow-black/40 backdrop-blur-sm sm:p-4"
-              style={{ animationDelay: "0.4s" }}
-            >
-              {/* Tabs */}
-              <div ref={tabsWrapRef} className="relative flex flex-wrap gap-1 border-b border-gray-200 pb-2.5">
-                <div
-                  className="disc-tab-indicator absolute bottom-[-1px] h-[2px] bg-amber-500"
-                  style={{ left: indicator.left, width: indicator.width }}
-                />
-                {TABS.map((tab, i) => (
-                  <button
-                    key={tab.label}
-                    ref={(el) => {
-                      tabRefs.current[i] = el;
-                    }}
-                    onClick={() => setActiveTab(i)}
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-250 sm:text-[13px] ${
-                      activeTab === i ? "text-gray-900" : "text-gray-400 hover:text-gray-600"
-                    }`}
-                  >
-                    {tab.icon}
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Fields */}
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <div className="disc-field rounded-xl px-2.5 py-2">
-                  <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                    <PinIcon /> From
-                  </p>
-                  <p className="mt-0.5 truncate text-xs font-bold text-gray-900 sm:text-sm">
-                    Mumbai, India
-                  </p>
-                </div>
-                <div className="disc-field rounded-xl px-2.5 py-2">
-                  <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                    <PinIcon /> To
-                  </p>
-                  <p className="mt-0.5 truncate text-xs font-bold text-gray-900 sm:text-sm">
-                    Bali, Indonesia
-                  </p>
-                </div>
-                <div className="disc-field rounded-xl px-2.5 py-2">
-                  <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                    <CalendarIcon /> Dates
-                  </p>
-                  <p className="mt-0.5 truncate text-xs font-bold text-gray-900 sm:text-sm">
-                    Aug 12 – Aug 19
-                  </p>
-                </div>
-                <div className="disc-field rounded-xl px-2.5 py-2">
-                  <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-                    <UsersIcon /> Travellers
-                  </p>
-                  <p className="mt-0.5 truncate text-xs font-bold text-gray-900 sm:text-sm">
-                    2 Adults
-                  </p>
-                </div>
-              </div>
-
-              {/* Search button */}
-              <button
-                onClick={handleSearch}
-                disabled={searching}
-                className="disc-search-btn mt-3 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-6 py-2.5 text-xs font-semibold text-white shadow-md transition-transform disabled:cursor-wait sm:text-sm"
+        <div className="relative z-10 w-full max-w-2xl">
+          {isVisible && (
+            <>
+              <p
+                className="disc-fade-up disc-eyebrow-shimmer inline-flex items-center gap-2 rounded-full border border-amber-200/30 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200"
+                style={{ animationDelay: "0s" }}
               >
-                {searching ? (
-                  <span
-                    className="h-3.5 w-3.5 rounded-full border-2 border-white/40 border-t-white"
-                    style={{ animation: "discSpin 0.7s linear infinite" }}
-                  />
-                ) : (
-                  <SearchIcon />
-                )}
-                {searching ? "Searching..." : "Search"}
-              </button>
-            </div>
+                <PlaneIcon />
+                World-Class Travel Experiences
+              </p>
 
-            {/* Stats row */}
-            <div className="mt-9 grid grid-cols-4 gap-4 sm:gap-8">
-              {STATS.map((stat, i) => (
-                <StatItem key={stat.label} stat={stat} delay={i} start={isVisible} />
+              <h1
+                className="disc-fade-up mt-6 font-serif text-4xl font-bold leading-[1.15] text-white sm:text-5xl lg:text-6xl"
+                style={{ animationDelay: "0.12s" }}
+              >
+                Discover the World in{" "}
+                <span className="italic text-amber-300">Extraordinary</span> Ways
+              </h1>
+
+              <p
+                className="disc-fade-up mt-5 max-w-md text-sm text-white/70 sm:text-base"
+                style={{ animationDelay: "0.24s" }}
+              >
+                Curated journeys to 190+ countries. Expert-crafted itineraries, luxury
+                stays, and unforgettable experiences.
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* Tabs — centered, sits above the bar, still inside the hero on the background image */}
+        {isVisible && (
+          <div
+            className="disc-card absolute inset-x-0 bottom-0 z-10 mx-auto w-full max-w-5xl translate-y-1/2 px-4 mb-14 sm:px-8 lg:px-16"
+            style={{ animationDelay: "0.4s" }}
+          >
+            <div className="flex flex-wrap justify-center gap-1.5 pb-2">
+              {TABS.map((tab, i) => (
+                <button
+                  key={tab.label}
+                  onClick={() => setActiveTab(i)}
+                  className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all duration-250 sm:text-[13px] ${
+                    activeTab === i
+                      ? "bg-gray-900 text-white shadow-md shadow-black/20"
+                      : "bg-white/90 text-gray-500 hover:bg-white hover:text-gray-800"
+                  }`}
+                >
+                  {tab.icon}
+                  {tab.label}
+                </button>
               ))}
             </div>
-          </>
+          </div>
+        )}
+      </section>
+
+      {/* WHITE SEARCH BAR — straddles the hero boundary, centered independent of text column */}
+      {isVisible && (
+        <div className="relative z-20 mx-auto -mt-4 w-full max-w-5xl px-4 sm:-mt-6 sm:px-8 lg:-mt-8 lg:px-16">
+          <div className="flex flex-col overflow-hidden rounded-xl bg-white shadow-2xl shadow-black/40 sm:flex-row sm:items-stretch">
+            <div className="grid flex-1 grid-cols-2 divide-x divide-y divide-gray-100 sm:grid-cols-4 sm:divide-y-0">
+              <div className="disc-field px-4 py-3.5">
+                <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                  <PinIcon /> Destination
+                </p>
+                <p className="mt-1 truncate text-[13px] font-medium text-gray-800">
+                  Bali, Indonesia
+                </p>
+              </div>
+              <div className="disc-field px-4 py-3.5">
+                <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                  <CalendarIcon /> Check-in
+                </p>
+                <p className="mt-1 truncate text-[13px] font-medium text-gray-800">
+                  Fri, 17 Jul 2026
+                </p>
+              </div>
+              <div className="disc-field px-4 py-3.5">
+                <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                  <CalendarIcon /> Check-out
+                </p>
+                <p className="mt-1 truncate text-[13px] font-medium text-gray-800">
+                  Sat, 18 Jul 2026
+                </p>
+              </div>
+              <div className="disc-field px-4 py-3.5">
+                <p className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                  <UsersIcon /> Room &amp; Guest
+                </p>
+                <p className="mt-1 truncate text-[13px] font-medium text-gray-800">
+                  1 Room, 2 Adults
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSearch}
+              disabled={searching}
+              className="disc-search-btn flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 px-8 py-3.5 text-[13px] font-semibold text-gray-900 transition-transform disabled:cursor-wait sm:w-36"
+            >
+              {searching ? (
+                <span
+                  className="h-3.5 w-3.5 rounded-full border-2 border-gray-900/30 border-t-gray-900"
+                  style={{ animation: "discSpin 0.7s linear infinite" }}
+                />
+              ) : (
+                <SearchIcon />
+              )}
+              {searching ? "Searching..." : "Search"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CONTENT BELOW HERO — starts right where the hero ends, cleared of the overlapping bar */}
+      <div className="px-4 pb-16 pt-16 !text-black sm:px-8 lg:px-16">
+  {isVisible && (
+    <div className="mx-auto grid max-w-3xl grid-cols-4 gap-6 place-items-center sm:gap-10">
+      {STATS.map((stat, i) => (
+        <StatItem
+          key={stat.label}
+          stat={stat}
+          delay={i}
+          start={isVisible}
+        />
+      ))}
+    </div>
         )}
       </div>
-    </section>
+    </>
   );
 };
 

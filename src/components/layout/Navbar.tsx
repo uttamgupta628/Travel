@@ -136,7 +136,7 @@
 
 
 
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 
 const PlaneLogoIcon: React.FC = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
@@ -184,24 +184,20 @@ const MenuIcon: React.FC<{ open: boolean }> = ({ open }) => (
 const NAV_LINKS = ["Flights", "Hotels", "Holidays", "Trains", "Buses", "Visa", "Offers"];
 
 const Navbar: React.FC = () => {
-  const [scrolled, setScrolled] = useState(false);
+  // const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // useEffect(() => {
+  //   const onScroll = () => setScrolled(window.scrollY > 24);
+  //   onScroll();
+  //   window.addEventListener("scroll", onScroll, { passive: true });
+  //   return () => window.removeEventListener("scroll", onScroll);
+  // }, []);
 
   return (
     <header
-      className={`nav-enter fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "border-b border-white/10 bg-black/60 py-3 backdrop-blur-xl shadow-lg shadow-black/20"
-          : "border-b border-transparent bg-transparent py-5"
-      }`}
+      className="nav-enter fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-black/60 py-3 backdrop-blur-xl shadow-lg shadow-black/20 transition-all duration-500"
     >
       <style>{`
         @keyframes navEnter {

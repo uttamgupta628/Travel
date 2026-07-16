@@ -134,6 +134,11 @@ const DreamDestinationsSection: React.FC = () => {
           0% { transform: translateX(-130%) skewX(-12deg); }
           100% { transform: translateX(160%) skewX(-12deg); }
         }
+        @keyframes ddPriceGlow {
+          0% { text-shadow: 0 0 0 rgba(201, 151, 74, 0); }
+          50% { text-shadow: 0 0 12px rgba(201, 151, 74, 0.35); }
+          100% { text-shadow: 0 0 0 rgba(201, 151, 74, 0); }
+        }
 
         .dd-fade-up { opacity: 0; }
         .dd-fade-up.is-visible { animation: ddFadeUp 0.65s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -153,27 +158,44 @@ const DreamDestinationsSection: React.FC = () => {
         }
 
         .dd-card {
-          transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), box-shadow 0.4s ease;
+          transition: transform 0.42s cubic-bezier(0.22,1,0.36,1), box-shadow 0.42s ease, border-color 0.42s ease;
+          border: 1px solid transparent;
         }
         .dd-card:hover {
-          transform: translateY(-8px);
-          box-shadow: 0 24px 48px -16px rgba(30, 41, 59, 0.25);
+          transform: translateY(-9px);
+          box-shadow: 0 26px 50px -16px rgba(30, 41, 59, 0.28);
+          border-color: rgba(201, 151, 74, 0.35);
         }
-        .dd-card:hover .dd-card-img { transform: scale(1.12); }
+        .dd-card:hover .dd-card-img { transform: scale(1.1); }
         .dd-card:hover .dd-shine { animation: ddShine 1s ease forwards; }
+        .dd-card:hover .dd-name { color: #C9974A; }
+        .dd-card:hover .dd-price { animation: ddPriceGlow 1.1s ease; }
+
+        .dd-card-img {
+          transition: transform 0.7s cubic-bezier(0.22,1,0.36,1);
+        }
+
         .dd-shine {
           position: absolute;
           inset: -20% -60%;
-          background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.45) 50%, transparent 65%);
+          background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%);
           pointer-events: none;
         }
 
         .dd-heart.just-liked { animation: ddHeartPop 0.35s ease; }
+        .dd-heart {
+          transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+        }
+        .dd-heart:hover { transform: scale(1.12); }
 
         .dd-tag-shimmer {
           background-image: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%);
           background-size: 250% 100%;
           animation: ddShimmer 3s ease-in-out infinite;
+        }
+
+        .dd-name {
+          transition: color 0.3s ease;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -183,6 +205,7 @@ const DreamDestinationsSection: React.FC = () => {
           .dd-card:hover .dd-shine { animation: none; }
           .dd-heart.just-liked { animation: none; }
           .dd-tag-shimmer { animation: none; }
+          .dd-card:hover .dd-price { animation: none; }
         }
       `}</style>
 
@@ -233,7 +256,7 @@ const DreamDestinationsSection: React.FC = () => {
         </div>
 
         {/* Grid */}
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-12 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
           {visibleDestinations.map((dest, i) => {
             const originalIndex = DESTINATIONS.indexOf(dest);
             return (
@@ -242,7 +265,8 @@ const DreamDestinationsSection: React.FC = () => {
                 className={`dd-fade-up dd-card ${isVisible ? "is-visible" : ""} group relative overflow-hidden rounded-2xl bg-white shadow-md shadow-black/5`}
                 style={{ animationDelay: `${0.22 + i * 0.06}s` }}
               >
-                <div className="relative aspect-[3/4] w-full overflow-hidden">
+                {/* Image block (top portion only, like a hotel card) */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden">
                   {!failedImages[originalIndex] ? (
                     <img
                       src={dest.image}
@@ -251,7 +275,7 @@ const DreamDestinationsSection: React.FC = () => {
                       onError={() =>
                         setFailedImages((prev) => ({ ...prev, [originalIndex]: true }))
                       }
-                      className="dd-card-img absolute inset-0 h-full w-full scale-105 object-cover transition-transform duration-700 ease-out"
+                      className="dd-card-img absolute inset-0 h-full w-full object-cover"
                     />
                   ) : (
                     <div
@@ -263,7 +287,6 @@ const DreamDestinationsSection: React.FC = () => {
                   )}
 
                   <div className="dd-shine" />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
 
                   {/* Category tag */}
                   <span
@@ -276,33 +299,37 @@ const DreamDestinationsSection: React.FC = () => {
                   <button
                     onClick={() => toggleLike(originalIndex)}
                     aria-label="Toggle wishlist"
-                    className={`dd-heart ${justLiked === originalIndex ? "just-liked" : ""} absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/25 text-white backdrop-blur-sm transition-colors duration-200 ${
+                    className={`dd-heart ${justLiked === originalIndex ? "just-liked" : ""} absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm ${
                       liked[originalIndex] ? "text-rose-400" : "hover:text-rose-300"
                     }`}
                   >
                     <HeartIcon filled={!!liked[originalIndex]} />
                   </button>
+                </div>
 
-                  {/* Name / country / rating / price */}
-                  <div className="absolute inset-x-0 bottom-0 p-3">
-                    <h3 className="text-sm font-bold text-white">{dest.name}</h3>
-                    <p className="mt-0.5 flex items-center gap-1 text-[10px] text-white/70">
-                      <PinIcon />
-                      {dest.country}
-                    </p>
-                    <div className="mt-1.5 flex items-center justify-between">
-                      <span className="flex items-center gap-1 text-[11px] font-semibold text-white">
-                        <span className="text-amber-400">
-                          <StarIcon />
-                        </span>
-                        {dest.rating}
-                        <span className="text-white/50">({dest.reviews})</span>
+                {/* Details block (below image, like a hotel card) */}
+                <div className="p-3">
+                  <h3 className="dd-name truncate text-sm font-bold" style={{ color: "#1B2A4A" }}>
+                    {dest.name}
+                  </h3>
+                  <p className="mt-1 flex items-center gap-1 text-[11px] text-gray-500">
+                    <PinIcon />
+                    {dest.country}
+                  </p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-700">
+                      <span className="text-amber-400">
+                        <StarIcon />
                       </span>
-                      <span className="text-[11px] font-bold text-white">
-                        <span className="font-normal text-white/60">From </span>
-                        {dest.price}
-                      </span>
-                    </div>
+                      {dest.rating}
+                      <span className="text-gray-400">({dest.reviews})</span>
+                    </span>
+                  </div>
+                  <div className="mt-1.5">
+                    <span className="dd-price text-[13px] font-bold" style={{ color: "#1B2A4A" }}>
+                      <span className="font-normal text-gray-400">From </span>
+                      {dest.price}
+                    </span>
                   </div>
                 </div>
               </div>
