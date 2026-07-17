@@ -26,29 +26,136 @@ interface Destination {
 }
 
 const DESTINATIONS: Destination[] = [
-  { image: cld("pm/hikers_mts.jpg"), name: "Bali", country: "Indonesia", tag: "Trending", tagColor: "bg-orange-500", rating: 4.9, reviews: "2.4k", price: "$899" },
-  { image: cld("pm/japan.jpg"), name: "Japan", country: "Japan", tag: "Popular", tagColor: "bg-amber-500", rating: 4.8, reviews: "3.1k", price: "$1,299" },
-  { image: cld("samples/landscapes/architecture-signs"), name: "Dubai", country: "UAE", tag: "Luxury", tagColor: "bg-violet-600", rating: 4.7, reviews: "1.8k", price: "$1,099" },
-  { image: cld("pm/mountains_autumn.jpg"), name: "Switzerland", country: "Switzerland", tag: "Scenic", tagColor: "bg-sky-500", rating: 4.9, reviews: "1.2k", price: "$1,899" },
-  { image: cld("samples/landscapes/girl-urban-view"), name: "Paris", country: "France", tag: "Classic", tagColor: "bg-slate-700", rating: 4.6, reviews: "4.5k", price: "$1,599" },
-  { image: cld("samples/landscapes/beach-boat"), name: "Amalfi", country: "Italy", tag: "Romantic", tagColor: "bg-pink-500", rating: 4.7, reviews: "980", price: "$1,399" },
-  { image: cld("sample.jpg"), name: "Maldives", country: "Maldives", tag: "Exclusive", tagColor: "bg-teal-600", rating: 5.0, reviews: "760", price: "$2,499" },
-  { image: cld("pm/woman_car.jpg"), name: "Thailand", country: "Thailand", tag: "Value", tagColor: "bg-red-500", rating: 4.6, reviews: "3.6k", price: "$799" },
-  { image: cld("samples/landscapes/nature-mountains"), name: "Iceland", country: "Iceland", tag: "Adventure", tagColor: "bg-emerald-600", rating: 4.8, reviews: "1.1k", price: "$1,899" },
-  { image: cld("pm/kitchen.jpg"), name: "Santorini", country: "Greece", tag: "Romantic", tagColor: "bg-rose-500", rating: 4.9, reviews: "2.9k", price: "$1,699" },
+  {
+    image: cld("pm/hikers_mts.jpg"),
+    name: "Bali",
+    country: "Indonesia",
+    tag: "Trending",
+    tagColor: "bg-orange-500",
+    rating: 4.9,
+    reviews: "2.4k",
+    price: "$899",
+  },
+  {
+    image: cld("pm/japan.jpg"),
+    name: "Japan",
+    country: "Japan",
+    tag: "Popular",
+    tagColor: "bg-amber-500",
+    rating: 4.8,
+    reviews: "3.1k",
+    price: "$1,299",
+  },
+  {
+    image: cld("samples/landscapes/architecture-signs"),
+    name: "Dubai",
+    country: "UAE",
+    tag: "Luxury",
+    tagColor: "bg-violet-600",
+    rating: 4.7,
+    reviews: "1.8k",
+    price: "$1,099",
+  },
+  {
+    image: cld("pm/mountains_autumn.jpg"),
+    name: "Switzerland",
+    country: "Switzerland",
+    tag: "Scenic",
+    tagColor: "bg-sky-500",
+    rating: 4.9,
+    reviews: "1.2k",
+    price: "$1,899",
+  },
+  {
+    image: cld("samples/landscapes/girl-urban-view"),
+    name: "Paris",
+    country: "France",
+    tag: "Classic",
+    tagColor: "bg-slate-700",
+    rating: 4.6,
+    reviews: "4.5k",
+    price: "$1,599",
+  },
+  {
+    image: cld("samples/landscapes/beach-boat"),
+    name: "Amalfi",
+    country: "Italy",
+    tag: "Romantic",
+    tagColor: "bg-pink-500",
+    rating: 4.7,
+    reviews: "980",
+    price: "$1,399",
+  },
+  {
+    image: cld("sample.jpg"),
+    name: "Maldives",
+    country: "Maldives",
+    tag: "Exclusive",
+    tagColor: "bg-teal-600",
+    rating: 5.0,
+    reviews: "760",
+    price: "$2,499",
+  },
+  {
+    image: cld("pm/woman_car.jpg"),
+    name: "Thailand",
+    country: "Thailand",
+    tag: "Value",
+    tagColor: "bg-red-500",
+    rating: 4.6,
+    reviews: "3.6k",
+    price: "$799",
+  },
+  {
+    image: cld("samples/landscapes/nature-mountains"),
+    name: "Iceland",
+    country: "Iceland",
+    tag: "Adventure",
+    tagColor: "bg-emerald-600",
+    rating: 4.8,
+    reviews: "1.1k",
+    price: "$1,899",
+  },
+  {
+    image: cld("pm/kitchen.jpg"),
+    name: "Santorini",
+    country: "Greece",
+    tag: "Romantic",
+    tagColor: "bg-rose-500",
+    rating: 4.9,
+    reviews: "2.9k",
+    price: "$1,699",
+  },
 ];
 
-const FILTERS = ["All", "Trending", "Luxury", "Romantic", "Adventure", "Popular"];
+const FILTERS = [
+  "All",
+  "Trending",
+  "Luxury",
+  "Romantic",
+  "Adventure",
+  "Popular",
+];
 
 // How many cards are visible in the single row at once.
 const CARDS_PER_VIEW = 3;
 // Gap between cards in px (kept in sync with the track's inline gap).
 const CARD_GAP = 20;
+// Auto-scroll speed in pixels per millisecond (higher = faster).
+const SCROLL_SPEED = 0.045;
 
 /* ---------------------------------- Icons --------------------------------- */
 
 const HeartIcon: React.FC<{ filled: boolean }> = ({ filled }) => (
-  <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+  <svg
+    viewBox="0 0 24 24"
+    fill={filled ? "currentColor" : "none"}
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4"
+  >
     <path d="M12 20.5s-7-4.35-9.5-8.7C.8 8.2 2.3 4.5 6 4.5c2 0 3.3 1 4 2.3C10.7 5.5 12 4.5 14 4.5c3.7 0 5.2 3.7 3.5 7.3-2.5 4.35-9.5 8.7-9.5 8.7Z" />
   </svg>
 );
@@ -63,12 +170,28 @@ const PinIcon: React.FC = () => (
   </svg>
 );
 const ChevronLeftIcon: React.FC = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4"
+  >
     <path d="M15 6l-6 6 6 6" />
   </svg>
 );
 const ChevronRightIcon: React.FC = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.4}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-4 w-4"
+  >
     <path d="M9 6l6 6-6 6" />
   </svg>
 );
@@ -80,6 +203,7 @@ const DreamDestinationsSection: React.FC = () => {
   const filtersWrapRef = useRef<HTMLDivElement>(null);
   const filterRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const carouselWrapRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const [isVisible, setIsVisible] = useState(false);
   const [activeFilter, setActiveFilter] = useState(0);
@@ -87,8 +211,14 @@ const DreamDestinationsSection: React.FC = () => {
   const [liked, setLiked] = useState<Record<number, boolean>>({});
   const [justLiked, setJustLiked] = useState<number | null>(null);
   const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
-  const [slideIndex, setSlideIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(0);
+
+  // Continuous auto-scroll state (kept in refs so the rAF loop doesn't
+  // trigger React re-renders every frame — we mutate the track's style
+  // directly instead).
+  const positionRef = useRef(0);
+  const isPausedRef = useRef(false);
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -100,7 +230,7 @@ const DreamDestinationsSection: React.FC = () => {
           observer.disconnect();
         }
       },
-      { threshold: 0.08 }
+      { threshold: 0.08 },
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -145,26 +275,75 @@ const DreamDestinationsSection: React.FC = () => {
       ? DESTINATIONS
       : DESTINATIONS.filter((d) => d.tag === FILTERS[activeFilter]);
 
-  // Reset the carousel position whenever the filter (and therefore the list) changes.
+  // Reset the scroll position whenever the filter (and therefore the list) changes.
   useEffect(() => {
-    setSlideIndex(0);
+    positionRef.current = 0;
+    if (trackRef.current) {
+      trackRef.current.style.transform = "translateX(0px)";
+    }
   }, [activeFilter]);
 
-  const maxSlideIndex = Math.max(0, visibleDestinations.length - CARDS_PER_VIEW);
-  const canGoPrev = slideIndex > 0;
-  const canGoNext = slideIndex < maxSlideIndex;
+  // Render the list twice back-to-back so the loop is seamless: once the
+  // track has scrolled the width of one full set, we snap the position
+  // back by that same amount (invisibly, since the second copy is already
+  // sitting right where the first one was).
+  const loopDestinations = [...visibleDestinations, ...visibleDestinations];
+  const singleSetWidth = cardWidth
+    ? visibleDestinations.length * (cardWidth + CARD_GAP)
+    : 0;
 
-  const goPrev = useCallback(() => {
-    setSlideIndex((i) => Math.max(0, i - 1));
-  }, []);
-  const goNext = useCallback(() => {
-    setSlideIndex((i) => Math.min(maxSlideIndex, i + 1));
-  }, [maxSlideIndex]);
+  useEffect(() => {
+    if (!cardWidth || visibleDestinations.length === 0) return;
+
+    let lastTime: number | null = null;
+
+    const step = (time: number) => {
+      if (lastTime === null) lastTime = time;
+      const delta = time - lastTime;
+      lastTime = time;
+
+      if (!isPausedRef.current && singleSetWidth > 0) {
+        positionRef.current += delta * SCROLL_SPEED;
+        if (positionRef.current >= singleSetWidth) {
+          positionRef.current -= singleSetWidth;
+        }
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translateX(-${positionRef.current}px)`;
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [cardWidth, singleSetWidth, visibleDestinations.length]);
+
+  const nudge = useCallback(
+    (direction: 1 | -1) => {
+      if (!cardWidth || singleSetWidth <= 0) return;
+      const step = cardWidth + CARD_GAP;
+      let next = positionRef.current + direction * step;
+      // Keep the position wrapped within [0, singleSetWidth) so the
+      // seamless loop math keeps working after a manual nudge.
+      next = ((next % singleSetWidth) + singleSetWidth) % singleSetWidth;
+      positionRef.current = next;
+      if (trackRef.current) {
+        trackRef.current.style.transform = `translateX(-${next}px)`;
+      }
+    },
+    [cardWidth, singleSetWidth],
+  );
+
+  const goPrev = useCallback(() => nudge(-1), [nudge]);
+  const goNext = useCallback(() => nudge(1), [nudge]);
 
   return (
     <section
       ref={sectionRef}
-      className="relative isolate overflow-hidden px-4 py-24 sm:px-8 lg:px-16"
+      className="relative isolate overflow-hidden px-4 py-2 sm:px-8 lg:px-16"
       style={{ backgroundColor: "#F5F2EC" }}
     >
       <style>{`
@@ -224,7 +403,7 @@ const DreamDestinationsSection: React.FC = () => {
         }
 
         .dd-track {
-          transition: transform 0.55s cubic-bezier(0.22,1,0.36,1);
+          will-change: transform;
         }
 
         .dd-card {
@@ -276,7 +455,6 @@ const DreamDestinationsSection: React.FC = () => {
           .dd-heart.just-liked { animation: none; }
           .dd-tag-shimmer { animation: none; }
           .dd-card:hover .dd-price { animation: none; }
-          .dd-track { transition: none; }
           .dd-nav-btn:hover:not(:disabled) { transform: none; }
         }
       `}</style>
@@ -293,8 +471,13 @@ const DreamDestinationsSection: React.FC = () => {
               Curated for You
             </p>
             <h2
-              className={`dd-fade-up ${isVisible ? "is-visible" : ""} mt-2 font-serif text-3xl font-bold sm:text-4xl`}
-              style={{ animationDelay: "0.08s", color: "#1B2A4A" }}
+              className={`dd-fade-up ${isVisible ? "is-visible" : ""} mt-2 text-3xl font-bold tracking-tight sm:text-4xl`}
+              style={{
+                animationDelay: "0.08s",
+                color: "#1B2A4A",
+                fontFamily:
+                  "'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif",
+              }}
             >
               Dream Destinations
             </h2>
@@ -307,7 +490,11 @@ const DreamDestinationsSection: React.FC = () => {
             <div ref={filtersWrapRef} className="relative flex flex-wrap gap-2">
               <div
                 className="dd-filter-indicator absolute inset-y-0 rounded-full"
-                style={{ left: indicator.left, width: indicator.width, backgroundColor: "#1B2A4A" }}
+                style={{
+                  left: indicator.left,
+                  width: indicator.width,
+                  backgroundColor: "#1B2A4A",
+                }}
               />
               {FILTERS.map((filter, i) => (
                 <button
@@ -317,21 +504,26 @@ const DreamDestinationsSection: React.FC = () => {
                   }}
                   onClick={() => setActiveFilter(i)}
                   className={`relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-300 ${
-                    activeFilter === i ? "text-white" : "text-gray-500 hover:text-gray-800"
+                    activeFilter === i
+                      ? "text-white"
+                      : "text-gray-500 hover:text-gray-800"
                   }`}
-                  style={activeFilter !== i ? { backgroundColor: "rgba(27,42,74,0.06)" } : undefined}
+                  style={
+                    activeFilter !== i
+                      ? { backgroundColor: "rgba(27,42,74,0.06)" }
+                      : undefined
+                  }
                 >
                   {filter}
                 </button>
               ))}
             </div>
 
-            {/* Prev / Next carousel controls */}
+            {/* Prev / Next carousel controls (manual nudge; auto-scroll keeps going) */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={goPrev}
-                disabled={!canGoPrev}
                 aria-label="Previous destination"
                 className="dd-nav-btn flex h-9 w-9 items-center justify-center rounded-full text-white"
                 style={{ backgroundColor: "#1B2A4A" }}
@@ -341,7 +533,6 @@ const DreamDestinationsSection: React.FC = () => {
               <button
                 type="button"
                 onClick={goNext}
-                disabled={!canGoNext}
                 aria-label="Next destination"
                 className="dd-nav-btn flex h-9 w-9 items-center justify-center rounded-full text-white"
                 style={{ backgroundColor: "#1B2A4A" }}
@@ -352,36 +543,46 @@ const DreamDestinationsSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Carousel — single row, exactly CARDS_PER_VIEW cards visible */}
-        <div ref={carouselWrapRef} className="mt-12 overflow-hidden">
+        {/* Carousel — continuously auto-scrolls right to left, pauses on hover */}
+        <div
+          ref={carouselWrapRef}
+          className="mt-12 overflow-hidden"
+          onMouseEnter={() => {
+            isPausedRef.current = true;
+          }}
+          onMouseLeave={() => {
+            isPausedRef.current = false;
+          }}
+        >
           <div
+            ref={trackRef}
             className="dd-track flex"
-            style={{
-              gap: `${CARD_GAP}px`,
-              transform: cardWidth ? `translateX(-${slideIndex * (cardWidth + CARD_GAP)}px)` : undefined,
-            }}
+            style={{ gap: `${CARD_GAP}px` }}
           >
-            {visibleDestinations.map((dest, i) => {
+            {loopDestinations.map((dest, i) => {
               const originalIndex = DESTINATIONS.indexOf(dest);
               return (
                 <div
-                  key={dest.name}
+                  key={`${dest.name}-${i}`}
                   className={`dd-fade-up dd-card ${isVisible ? "is-visible" : ""} group relative overflow-hidden rounded-2xl bg-white shadow-md shadow-black/5`}
                   style={{
-                    animationDelay: `${0.22 + i * 0.06}s`,
+                    animationDelay: `${0.22 + (i % visibleDestinations.length) * 0.06}s`,
                     flex: `0 0 ${cardWidth || 0}px`,
                     width: cardWidth || undefined,
                   }}
                 >
                   {/* Image block (top portion only, like a hotel card) */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden">
+                  <div className="relative aspect-1/1 w-full overflow-hidden">
                     {!failedImages[originalIndex] ? (
                       <img
                         src={dest.image}
                         alt={dest.name}
                         loading="lazy"
                         onError={() =>
-                          setFailedImages((prev) => ({ ...prev, [originalIndex]: true }))
+                          setFailedImages((prev) => ({
+                            ...prev,
+                            [originalIndex]: true,
+                          }))
                         }
                         className="dd-card-img absolute inset-0 h-full w-full object-cover"
                       />
@@ -408,7 +609,9 @@ const DreamDestinationsSection: React.FC = () => {
                       onClick={() => toggleLike(originalIndex)}
                       aria-label="Toggle wishlist"
                       className={`dd-heart ${justLiked === originalIndex ? "just-liked" : ""} absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm ${
-                        liked[originalIndex] ? "text-rose-400" : "hover:text-rose-300"
+                        liked[originalIndex]
+                          ? "text-rose-400"
+                          : "hover:text-rose-300"
                       }`}
                     >
                       <HeartIcon filled={!!liked[originalIndex]} />
@@ -416,16 +619,19 @@ const DreamDestinationsSection: React.FC = () => {
                   </div>
 
                   {/* Details block (below image, like a hotel card) */}
-                  <div className="p-4">
-                    <h3 className="dd-name truncate text-base font-bold" style={{ color: "#1B2A4A" }}>
+                  <div className="p-5">
+                    <h3
+                      className="dd-name truncate text-xl font-bold"
+                      style={{ color: "#1B2A4A" }}
+                    >
                       {dest.name}
                     </h3>
-                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-gray-500">
                       <PinIcon />
                       {dest.country}
                     </p>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="flex items-center gap-1 text-xs font-semibold text-gray-700">
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
                         <span className="text-amber-400">
                           <StarIcon />
                         </span>
@@ -433,8 +639,11 @@ const DreamDestinationsSection: React.FC = () => {
                         <span className="text-gray-400">({dest.reviews})</span>
                       </span>
                     </div>
-                    <div className="mt-2">
-                      <span className="dd-price text-base font-bold" style={{ color: "#1B2A4A" }}>
+                    <div className="mt-2.5">
+                      <span
+                        className="dd-price text-xl font-bold"
+                        style={{ color: "#1B2A4A" }}
+                      >
                         <span className="font-normal text-gray-400">From </span>
                         {dest.price}
                       </span>
