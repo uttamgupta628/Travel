@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 
 /**
  * Images are served through Cloudinary (auto format/quality + smart
@@ -40,6 +40,11 @@ const DESTINATIONS: Destination[] = [
 
 const FILTERS = ["All", "Trending", "Luxury", "Romantic", "Adventure", "Popular"];
 
+// How many cards are visible in the single row at once.
+const CARDS_PER_VIEW = 3;
+// Gap between cards in px (kept in sync with the track's inline gap).
+const CARD_GAP = 20;
+
 /* ---------------------------------- Icons --------------------------------- */
 
 const HeartIcon: React.FC<{ filled: boolean }> = ({ filled }) => (
@@ -57,6 +62,16 @@ const PinIcon: React.FC = () => (
     <path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21z" />
   </svg>
 );
+const ChevronLeftIcon: React.FC = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    <path d="M15 6l-6 6 6 6" />
+  </svg>
+);
+const ChevronRightIcon: React.FC = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+    <path d="M9 6l6 6-6 6" />
+  </svg>
+);
 
 /* -------------------------------- Component ------------------------------- */
 
@@ -64,6 +79,7 @@ const DreamDestinationsSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const filtersWrapRef = useRef<HTMLDivElement>(null);
   const filterRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const carouselWrapRef = useRef<HTMLDivElement>(null);
 
   const [isVisible, setIsVisible] = useState(false);
   const [activeFilter, setActiveFilter] = useState(0);
@@ -71,6 +87,8 @@ const DreamDestinationsSection: React.FC = () => {
   const [liked, setLiked] = useState<Record<number, boolean>>({});
   const [justLiked, setJustLiked] = useState<number | null>(null);
   const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [cardWidth, setCardWidth] = useState(0);
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -97,6 +115,23 @@ const DreamDestinationsSection: React.FC = () => {
     setIndicator({ left: btnRect.left - wrapRect.left, width: btnRect.width });
   }, [activeFilter, isVisible]);
 
+  // Measure the carousel wrapper so exactly CARDS_PER_VIEW cards fit per row.
+  useEffect(() => {
+    const wrap = carouselWrapRef.current;
+    if (!wrap) return;
+
+    const measure = () => {
+      const width = wrap.getBoundingClientRect().width;
+      const totalGap = CARD_GAP * (CARDS_PER_VIEW - 1);
+      setCardWidth((width - totalGap) / CARDS_PER_VIEW);
+    };
+
+    measure();
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(wrap);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const toggleLike = (index: number) => {
     setLiked((prev) => ({ ...prev, [index]: !prev[index] }));
     if (!liked[index]) {
@@ -109,6 +144,22 @@ const DreamDestinationsSection: React.FC = () => {
     activeFilter === 0
       ? DESTINATIONS
       : DESTINATIONS.filter((d) => d.tag === FILTERS[activeFilter]);
+
+  // Reset the carousel position whenever the filter (and therefore the list) changes.
+  useEffect(() => {
+    setSlideIndex(0);
+  }, [activeFilter]);
+
+  const maxSlideIndex = Math.max(0, visibleDestinations.length - CARDS_PER_VIEW);
+  const canGoPrev = slideIndex > 0;
+  const canGoNext = slideIndex < maxSlideIndex;
+
+  const goPrev = useCallback(() => {
+    setSlideIndex((i) => Math.max(0, i - 1));
+  }, []);
+  const goNext = useCallback(() => {
+    setSlideIndex((i) => Math.min(maxSlideIndex, i + 1));
+  }, [maxSlideIndex]);
 
   return (
     <section
@@ -155,6 +206,25 @@ const DreamDestinationsSection: React.FC = () => {
 
         .dd-filter-indicator {
           transition: left 0.35s cubic-bezier(0.22,1,0.36,1), width 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+
+        .dd-nav-btn {
+          transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+        }
+        .dd-nav-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 20px -8px rgba(27, 42, 74, 0.35);
+        }
+        .dd-nav-btn:active:not(:disabled) {
+          transform: translateY(0);
+        }
+        .dd-nav-btn:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+        }
+
+        .dd-track {
+          transition: transform 0.55s cubic-bezier(0.22,1,0.36,1);
         }
 
         .dd-card {
@@ -206,11 +276,13 @@ const DreamDestinationsSection: React.FC = () => {
           .dd-heart.just-liked { animation: none; }
           .dd-tag-shimmer { animation: none; }
           .dd-card:hover .dd-price { animation: none; }
+          .dd-track { transition: none; }
+          .dd-nav-btn:hover:not(:disabled) { transform: none; }
         }
       `}</style>
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Heading + filters */}
+        {/* Heading + filters + carousel arrows */}
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <p
@@ -229,112 +301,149 @@ const DreamDestinationsSection: React.FC = () => {
           </div>
 
           <div
-            ref={filtersWrapRef}
-            className={`dd-fade-up ${isVisible ? "is-visible" : ""} relative flex flex-wrap gap-2`}
+            className={`dd-fade-up ${isVisible ? "is-visible" : ""} flex flex-wrap items-center gap-4`}
             style={{ animationDelay: "0.16s" }}
           >
-            <div
-              className="dd-filter-indicator absolute inset-y-0 rounded-full"
-              style={{ left: indicator.left, width: indicator.width, backgroundColor: "#1B2A4A" }}
-            />
-            {FILTERS.map((filter, i) => (
+            <div ref={filtersWrapRef} className="relative flex flex-wrap gap-2">
+              <div
+                className="dd-filter-indicator absolute inset-y-0 rounded-full"
+                style={{ left: indicator.left, width: indicator.width, backgroundColor: "#1B2A4A" }}
+              />
+              {FILTERS.map((filter, i) => (
+                <button
+                  key={filter}
+                  ref={(el) => {
+                    filterRefs.current[i] = el;
+                  }}
+                  onClick={() => setActiveFilter(i)}
+                  className={`relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-300 ${
+                    activeFilter === i ? "text-white" : "text-gray-500 hover:text-gray-800"
+                  }`}
+                  style={activeFilter !== i ? { backgroundColor: "rgba(27,42,74,0.06)" } : undefined}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            {/* Prev / Next carousel controls */}
+            <div className="flex items-center gap-2">
               <button
-                key={filter}
-                ref={(el) => {
-                  filterRefs.current[i] = el;
-                }}
-                onClick={() => setActiveFilter(i)}
-                className={`relative z-10 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-300 ${
-                  activeFilter === i ? "text-white" : "text-gray-500 hover:text-gray-800"
-                }`}
-                style={activeFilter !== i ? { backgroundColor: "rgba(27,42,74,0.06)" } : undefined}
+                type="button"
+                onClick={goPrev}
+                disabled={!canGoPrev}
+                aria-label="Previous destination"
+                className="dd-nav-btn flex h-9 w-9 items-center justify-center rounded-full text-white"
+                style={{ backgroundColor: "#1B2A4A" }}
               >
-                {filter}
+                <ChevronLeftIcon />
               </button>
-            ))}
+              <button
+                type="button"
+                onClick={goNext}
+                disabled={!canGoNext}
+                aria-label="Next destination"
+                className="dd-nav-btn flex h-9 w-9 items-center justify-center rounded-full text-white"
+                style={{ backgroundColor: "#1B2A4A" }}
+              >
+                <ChevronRightIcon />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="mt-12 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-          {visibleDestinations.map((dest, i) => {
-            const originalIndex = DESTINATIONS.indexOf(dest);
-            return (
-              <div
-                key={dest.name}
-                className={`dd-fade-up dd-card ${isVisible ? "is-visible" : ""} group relative overflow-hidden rounded-2xl bg-white shadow-md shadow-black/5`}
-                style={{ animationDelay: `${0.22 + i * 0.06}s` }}
-              >
-                {/* Image block (top portion only, like a hotel card) */}
-                <div className="relative aspect-[4/3] w-full overflow-hidden">
-                  {!failedImages[originalIndex] ? (
-                    <img
-                      src={dest.image}
-                      alt={dest.name}
-                      loading="lazy"
-                      onError={() =>
-                        setFailedImages((prev) => ({ ...prev, [originalIndex]: true }))
-                      }
-                      className="dd-card-img absolute inset-0 h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: `linear-gradient(135deg, hsl(${(originalIndex * 47) % 360} 45% 30%), hsl(${(originalIndex * 47 + 40) % 360} 40% 18%))`,
-                      }}
-                    />
-                  )}
+        {/* Carousel — single row, exactly CARDS_PER_VIEW cards visible */}
+        <div ref={carouselWrapRef} className="mt-12 overflow-hidden">
+          <div
+            className="dd-track flex"
+            style={{
+              gap: `${CARD_GAP}px`,
+              transform: cardWidth ? `translateX(-${slideIndex * (cardWidth + CARD_GAP)}px)` : undefined,
+            }}
+          >
+            {visibleDestinations.map((dest, i) => {
+              const originalIndex = DESTINATIONS.indexOf(dest);
+              return (
+                <div
+                  key={dest.name}
+                  className={`dd-fade-up dd-card ${isVisible ? "is-visible" : ""} group relative overflow-hidden rounded-2xl bg-white shadow-md shadow-black/5`}
+                  style={{
+                    animationDelay: `${0.22 + i * 0.06}s`,
+                    flex: `0 0 ${cardWidth || 0}px`,
+                    width: cardWidth || undefined,
+                  }}
+                >
+                  {/* Image block (top portion only, like a hotel card) */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden">
+                    {!failedImages[originalIndex] ? (
+                      <img
+                        src={dest.image}
+                        alt={dest.name}
+                        loading="lazy"
+                        onError={() =>
+                          setFailedImages((prev) => ({ ...prev, [originalIndex]: true }))
+                        }
+                        className="dd-card-img absolute inset-0 h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: `linear-gradient(135deg, hsl(${(originalIndex * 47) % 360} 45% 30%), hsl(${(originalIndex * 47 + 40) % 360} 40% 18%))`,
+                        }}
+                      />
+                    )}
 
-                  <div className="dd-shine" />
+                    <div className="dd-shine" />
 
-                  {/* Category tag */}
-                  <span
-                    className={`dd-tag-shimmer absolute left-2.5 top-2.5 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-white shadow-sm ${dest.tagColor}`}
-                  >
-                    {dest.tag}
-                  </span>
+                    {/* Category tag */}
+                    <span
+                      className={`dd-tag-shimmer absolute left-3 top-3 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm ${dest.tagColor}`}
+                    >
+                      {dest.tag}
+                    </span>
 
-                  {/* Wishlist heart */}
-                  <button
-                    onClick={() => toggleLike(originalIndex)}
-                    aria-label="Toggle wishlist"
-                    className={`dd-heart ${justLiked === originalIndex ? "just-liked" : ""} absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm ${
-                      liked[originalIndex] ? "text-rose-400" : "hover:text-rose-300"
-                    }`}
-                  >
-                    <HeartIcon filled={!!liked[originalIndex]} />
-                  </button>
-                </div>
+                    {/* Wishlist heart */}
+                    <button
+                      onClick={() => toggleLike(originalIndex)}
+                      aria-label="Toggle wishlist"
+                      className={`dd-heart ${justLiked === originalIndex ? "just-liked" : ""} absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm ${
+                        liked[originalIndex] ? "text-rose-400" : "hover:text-rose-300"
+                      }`}
+                    >
+                      <HeartIcon filled={!!liked[originalIndex]} />
+                    </button>
+                  </div>
 
-                {/* Details block (below image, like a hotel card) */}
-                <div className="p-3">
-                  <h3 className="dd-name truncate text-sm font-bold" style={{ color: "#1B2A4A" }}>
-                    {dest.name}
-                  </h3>
-                  <p className="mt-1 flex items-center gap-1 text-[11px] text-gray-500">
-                    <PinIcon />
-                    {dest.country}
-                  </p>
-                  <div className="mt-2 flex items-center justify-between">
-                    <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-700">
-                      <span className="text-amber-400">
-                        <StarIcon />
+                  {/* Details block (below image, like a hotel card) */}
+                  <div className="p-4">
+                    <h3 className="dd-name truncate text-base font-bold" style={{ color: "#1B2A4A" }}>
+                      {dest.name}
+                    </h3>
+                    <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                      <PinIcon />
+                      {dest.country}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="flex items-center gap-1 text-xs font-semibold text-gray-700">
+                        <span className="text-amber-400">
+                          <StarIcon />
+                        </span>
+                        {dest.rating}
+                        <span className="text-gray-400">({dest.reviews})</span>
                       </span>
-                      {dest.rating}
-                      <span className="text-gray-400">({dest.reviews})</span>
-                    </span>
-                  </div>
-                  <div className="mt-1.5">
-                    <span className="dd-price text-[13px] font-bold" style={{ color: "#1B2A4A" }}>
-                      <span className="font-normal text-gray-400">From </span>
-                      {dest.price}
-                    </span>
+                    </div>
+                    <div className="mt-2">
+                      <span className="dd-price text-base font-bold" style={{ color: "#1B2A4A" }}>
+                        <span className="font-normal text-gray-400">From </span>
+                        {dest.price}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
