@@ -476,13 +476,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-const heroBackgrounds = [
-  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784112517/ChatGPT_Image_Jul_15_2026_04_16_52_PM_kfdij8.png",
-  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784112530/ChatGPT_Image_Jul_15_2026_04_16_52_PM_q7br4y.png",
-  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784114558/WhatsApp_Image_2026-07-15_at_4.51.50_PM_yqswos.jpg",
-  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784114946/WhatsApp_Image_2026-07-15_at_4.58.19_PM_tfw6tp.jpg",
-  "https://res.cloudinary.com/dbezoksfw/image/upload/v1784116823/WhatsApp_Image_2026-07-15_at_5.01.14_PM_xtdf1a.jpg",
-];
+const heroVideo =
+  "https://res.cloudinary.com/dbezoksfw/video/upload/v1784350526/InShot_20260718_004705933_hrdjvs.mp4";
 
 const SLIDE_DURATION = 2000;
 
@@ -598,43 +593,20 @@ const StatItem: React.FC<{ stat: Stat; delay: number; start: boolean }> = ({ sta
 /* ----------------------------- Background slideshow ----------------------------- */
 
 const HeroBackgroundSlideshow: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    if (heroBackgrounds.length <= 1) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % heroBackgrounds.length);
-    }, SLIDE_DURATION);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden">
-      {heroBackgrounds.map((src, i) => (
-        <img
-          key={src}
-          src={src}
-          alt=""
-          className={`disc-bg-img absolute inset-0 h-full w-full object-cover transition-opacity duration-[1400ms] ease-in-out ${
-            i === activeIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-          }`}
-        />
-      ))}
+      <video
+        className="disc-bg-img absolute inset-0 h-full w-full object-cover"
+        src={heroVideo}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+      />
       <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
       <div className="absolute inset-0 z-20 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
       <div className="absolute inset-0 z-20 bg-[radial-gradient(ellipse_at_bottom_left,rgba(217,161,91,0.12),transparent_60%)]" />
-
-      {/* Slide indicator dots */}
-      <div className="absolute bottom-5 left-1/2 z-30 flex -translate-x-1/2 gap-1.5">
-        {heroBackgrounds.map((_, i) => (
-          <span
-            key={i}
-            className={`h-1.5 rounded-full transition-all duration-500 ${
-              i === activeIndex ? "w-5 bg-amber-300" : "w-1.5 bg-white/40"
-            }`}
-          />
-        ))}
-      </div>
     </div>
   );
 };
