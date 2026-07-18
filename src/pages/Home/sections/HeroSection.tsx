@@ -479,7 +479,7 @@ import React, { useEffect, useRef, useState } from "react";
 const heroVideo =
   "https://res.cloudinary.com/dbezoksfw/video/upload/v1784350526/InShot_20260718_004705933_hrdjvs.mp4";
 
-const SLIDE_DURATION = 2000;
+// const SLIDE_DURATION = 2000;
 
 /* ---------------------------------- Icons --------------------------------- */
 
